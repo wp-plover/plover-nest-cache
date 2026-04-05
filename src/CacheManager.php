@@ -45,12 +45,12 @@ class CacheManager {
 		} );
 	}
 
-    /**
-     * Same as driver method
-     * 
-     * @param mixed $name
-     * @return Store
-     */
+	/**
+	 * Same as driver method
+	 * 
+	 * @param mixed $name
+	 * @return CacheRepository
+	 */
 	public function store( ?string $name = null ): Store {
 		return $this->driver( $name );
 	}
@@ -59,7 +59,7 @@ class CacheManager {
 	 * Get cache driver
 	 * 
 	 * @param mixed $name
-	 * @return Store
+	 * @return CacheRepository
 	 */
 	public function driver( ?string $name = null ): Store {
 		$name = $name ?: $this->getDefaultDriver();
@@ -85,11 +85,13 @@ class CacheManager {
 	 * 
 	 * @param string $name
 	 * @throws \InvalidArgumentException
-	 * @return Store
+	 * @return CacheRepository
 	 */
 	protected function createDriver( string $name ): Store {
 		if ( isset( $this->creators[ $name ] ) ) {
-			return call_user_func( $this->creators[ $name ], $this->conatiner );
+			$driver = call_user_func( $this->creators[ $name ], $this->conatiner );
+
+			return new CacheRepository( $driver );
 		}
 
 		throw new \InvalidArgumentException( $name );
