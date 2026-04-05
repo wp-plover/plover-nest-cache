@@ -19,6 +19,45 @@ use Plover\Nest\Cache\Contracts\Store;
  */
 class Cache extends Facade {
 
+	/**
+	 * Get a cache item, if it does not exist, call the callback to fetch and cache it.
+	 * 
+	 * @param string $key
+	 * @param mixed $ttl
+	 * @param mixed $callback
+	 */
+	public static function remember( string $key, $ttl, $callback ) {
+		$value = static::get( $key );
+		if ( $value !== null ) {
+			return $value;
+		}
+
+		$value = call_user_func( $callback );
+
+		static::set( $key, $value, $ttl );
+
+		return $value;
+	}
+
+	/**
+	 * Get a cache item, if it does not exist, call the callback to cache it permanently.
+	 * 
+	 * @param string $key
+	 * @param mixed $callback
+	 */
+	public static function rememberForever( string $key, $callback ) {
+		$value = static::get( $key );
+		if ( $value !== null ) {
+			return $value;
+		}
+
+		$value = call_user_func( $callback );
+
+		static::forever( $key, $value );
+
+		return $value;
+	}
+
 	protected static function getFacadeAccessor() {
 		return 'cache';
 	}
