@@ -70,7 +70,7 @@ class WordPressTransientStore implements Store {
 	 * @return bool
 	 */
 	public function flush(): bool {
-        // No flush implementaion
+		// No flush implementaion
 		return false;
 	}
 }

@@ -6,6 +6,7 @@ use Plover\Nest\Support\Facade;
 use Plover\Nest\Cache\Contracts\Store;
 
 /**
+ * @method static void 		setDefaultDriver( string $name )
  * @method static Store 	store( ?string $name = null )
  * @method static Store 	driver( ?string $name = null )
  * @method static void 		extend( ?string $driver, $callback )

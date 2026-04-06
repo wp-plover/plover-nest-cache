@@ -8,11 +8,11 @@ use Plover\Nest\Cache\Contracts\Store;
  * @since 1.0.1
  */
 class CacheRepository implements Store {
-    /**
-     * Store instance
-     * 
-     * @var Store
-     */
+	/**
+	 * Store instance
+	 * 
+	 * @var Store
+	 */
 	protected Store $store;
 
 	/**
@@ -72,6 +72,15 @@ class CacheRepository implements Store {
 	 */
 	public function flush(): bool {
 		return $this->store->flush();
+	}
+
+	/**
+	 * Raw store instance
+	 * 
+	 * @return Store
+	 */
+	public function rawStore() {
+		return $this->store;
 	}
 
 	/**

@@ -9,7 +9,7 @@ use Plover\Nest\Cache\Contracts\Store;
  * 
  * @since 1.0.0
  */
-class MemeoryStore implements Store {
+class MemoryStore implements Store {
     /**
      * Save all cached items
      * 

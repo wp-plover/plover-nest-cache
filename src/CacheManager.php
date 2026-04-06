@@ -34,15 +34,36 @@ class CacheManager {
 	protected $creators = [];
 
 	/**
+	 * Default cache driver
+	 * 
+	 * @var string
+	 */
+	protected $default_driver = 'memory';
+
+	/**
 	 * @param Container $conatiner
 	 */
 	public function __construct( Container $conatiner ) {
 		$this->conatiner = $conatiner;
 
-		// Default memeory cache driver
+		// Default memory cache driver
 		$this->extend( 'memory', function () {
-			return new \Plover\Nest\Cache\Stores\MemeoryStore();
+			return new \Plover\Nest\Cache\Stores\MemoryStore();
 		} );
+		// WordPress transient cache driver
+		$this->extend( 'wp-transient', function () {
+			return new \Plover\Nest\Cache\Stores\WordPressTransientStore();
+		} );
+	}
+
+	/**
+	 * Set default driver
+	 * 
+	 * @param string $name
+	 * @return void
+	 */
+	public function setDefaultDriver( string $name ) {
+		$this->default_driver = $name;
 	}
 
 	/**
@@ -62,7 +83,7 @@ class CacheManager {
 	 * @return CacheRepository
 	 */
 	public function driver( ?string $name = null ): Store {
-		$name = $name ?: $this->getDefaultDriver();
+		$name = $name ?: $this->default_driver;
 		if ( ! isset( $this->drivers[ $name ] ) ) {
 			$this->drivers[ $name ] = $this->createDriver( $name );
 		}
@@ -95,20 +116,6 @@ class CacheManager {
 		}
 
 		throw new \InvalidArgumentException( $name );
-	}
-
-	/**
-	 * Get default driver
-	 * 
-	 * @return string
-	 */
-	protected function getDefaultDriver(): string {
-		$config = $this->conatiner->get( 'config' );
-		if ( $config ) {
-			return $config->get( 'cache.default', 'memory' );
-		}
-
-		return 'memory';
 	}
 
 	/**
