@@ -13,19 +13,20 @@ interface Store {
 	 * Get a cache item
 	 * 
 	 * @param string $key
+	 * @param mixed $default
 	 * @return mixed|null
 	 */
-	public function get( string $key );
+	public function get( string $key, $default = null );
 
 	/**
-	 * Save a cache item with ttl
+	 * Save a cache item with seconds
 	 * 
 	 * @param string $key
 	 * @param mixed $value
-	 * @param int $ttl
+	 * @param int $seconds
 	 * @return bool
 	 */
-	public function set( string $key, $value, int $ttl = 0 ): bool;
+	public function set( string $key, $value, int $seconds = 0 ): bool;
 
 	/**
 	 * Save a cache item, it never expires

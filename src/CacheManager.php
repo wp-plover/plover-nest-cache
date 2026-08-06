@@ -17,7 +17,7 @@ class CacheManager {
 	 * 
 	 * @var \Plover\Nest\Container\Container
 	 */
-	protected $conatiner;
+	protected $container;
 
 	/**
 	 * All initialized drivers
@@ -41,10 +41,17 @@ class CacheManager {
 	protected $default_driver = 'memory';
 
 	/**
-	 * @param Container $conatiner
+	 * Default cache prefix
+	 * 
+	 * @var string
 	 */
-	public function __construct( Container $conatiner ) {
-		$this->conatiner = $conatiner;
+	protected $cache_prefix = '';
+
+	/**
+	 * @param Container $container
+	 */
+	public function __construct( Container $container ) {
+		$this->container = $container;
 
 		// Default memory cache driver
 		$this->extend( 'memory', function () {
@@ -52,8 +59,24 @@ class CacheManager {
 		} );
 		// WordPress transient cache driver
 		$this->extend( 'wp-transient', function () {
-			return new \Plover\Nest\Cache\Stores\WordPressTransientStore();
+			return new \Plover\Nest\Cache\Stores\WordPressTransientStore( $this->cache_prefix );
 		} );
+		// WordPress Object cache driver
+		$this->extend( 'wp-cache', function () {
+			return new \Plover\Nest\Cache\Stores\WordPressObjectCacheStore( $this->cache_prefix );
+		} );
+	}
+
+	/**
+	 * Set default cache prefix
+	 * 
+	 * @param string $prefix
+	 * @return void
+	 */
+	public function setCachePrefix( string $prefix ) {
+		$this->cache_prefix = $prefix;
+		// Reset all created drivers
+		$this->drivers = [];
 	}
 
 	/**
@@ -63,6 +86,10 @@ class CacheManager {
 	 * @return void
 	 */
 	public function setDefaultDriver( string $name ) {
+		if ( ! isset( $this->creators[ $name ] ) ) {
+			throw new \InvalidArgumentException( sprintf( 'Driver [%s] is not defined.', $name ) );
+		}
+
 		$this->default_driver = $name;
 	}
 
@@ -72,7 +99,7 @@ class CacheManager {
 	 * @param mixed $name
 	 * @return CacheRepository
 	 */
-	public function store( ?string $name = null ): Store {
+	public function store( ?string $name = null ): CacheRepository {
 		return $this->driver( $name );
 	}
 
@@ -82,7 +109,7 @@ class CacheManager {
 	 * @param mixed $name
 	 * @return CacheRepository
 	 */
-	public function driver( ?string $name = null ): Store {
+	public function driver( ?string $name = null ): CacheRepository {
 		$name = $name ?: $this->default_driver;
 		if ( ! isset( $this->drivers[ $name ] ) ) {
 			$this->drivers[ $name ] = $this->createDriver( $name );
@@ -97,7 +124,7 @@ class CacheManager {
 	 * @param $callback
 	 * @return void
 	 */
-	public function extend( string $driver, $callback ): void {
+	public function extend( string $driver, callable $callback ): void {
 		$this->creators[ $driver ] = $callback;
 	}
 
@@ -110,12 +137,12 @@ class CacheManager {
 	 */
 	protected function createDriver( string $name ): Store {
 		if ( isset( $this->creators[ $name ] ) ) {
-			$driver = call_user_func( $this->creators[ $name ], $this->conatiner );
+			$driver = call_user_func( $this->creators[ $name ], $this->container );
 
 			return new CacheRepository( $driver );
 		}
 
-		throw new \InvalidArgumentException( $name );
+		throw new \InvalidArgumentException( sprintf( 'Cache driver [%s] is not defined.', $name ) );
 	}
 
 	/**

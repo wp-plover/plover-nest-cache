@@ -42,7 +42,7 @@ class MemoryStore implements Store {
      * @return bool
      */
 	protected function has( string $key ): bool {
-		if ( isset( $this->expires[ $key ] ) && $this->expires[ $key ] < time() ) {
+		if ( isset( $this->expires[ $key ] ) && $this->expires[ $key ] !== 0 && $this->expires[ $key ] < time() ) {
 			$this->delete( $key );
 			return false;
 		}
@@ -58,7 +58,7 @@ class MemoryStore implements Store {
      */
 	public function set( string $key, $value, int $seconds = 0 ): bool {
 		$this->storage[ $key ] = $value;
-		$this->expires[ $key ] = $seconds === 0 ? null : time() + $seconds;
+		$this->expires[ $key ] = $seconds === 0 ? 0 : time() + $seconds;
 		return true;
 	}
 

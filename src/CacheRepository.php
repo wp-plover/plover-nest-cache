@@ -28,7 +28,7 @@ class CacheRepository implements Store {
 	 * @param string $key
 	 * @return mixed|null
 	 */
-	public function get( string $key ) {
+	public function get( string $key, $default = null ) {
 		return $this->store->get( $key );
 	}
 
